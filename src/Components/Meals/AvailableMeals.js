@@ -10,6 +10,52 @@ const FILE_NAME = 'meals.json';
 
 function AvailableMeals() {
 	const [meals, updateMeals] = useState([]);
+	const [isMealsLoading, setIsMealsLoading] = useState(false);
+	const [httpError, setHttpError] = useState(false);
+
+	useEffect(() => {
+		const fetchMeals = async () => {
+			setIsMealsLoading(true);
+			const response = await fetch(`${FIREBASE_ENDPOINT}/${FILE_NAME}`);
+			// console.log(response);
+			if (!response.ok) {
+				throw new Error('Something went wrong');
+			}
+			const data = await response.json();
+			const mealsArray = [];
+			for (const mealId in data) {
+				mealsArray.push({
+					id: mealId,
+					...data[mealId],
+				});
+			}
+			console.log(mealsArray);
+			updateMeals(mealsArray);
+			setIsMealsLoading(false);
+		};
+
+		fetchMeals().catch((error) => {
+			setIsMealsLoading(false);
+			setHttpError(error.message);
+			console.log(error.message);
+		});
+	}, []);
+
+	if (isMealsLoading) {
+		return (
+			<section className={classes['meals-loading']}>
+				<p>Loading...</p>
+			</section>
+		);
+	}
+
+	if (httpError) {
+		return (
+			<section className={classes['meals-error']}>
+				<p>{httpError}</p>
+			</section>
+		);
+	}
 
 	const mealsList = meals.map((meal) => {
 		return (
@@ -22,27 +68,6 @@ function AvailableMeals() {
 			/>
 		);
 	});
-
-	useEffect(() => {
-		const fetchMeals = async () => {
-			const response = await fetch(`${FIREBASE_ENDPOINT}/${FILE_NAME}`);
-			// console.log(response);
-			if (!response.ok) {
-				return console.log('Something went wrong');
-			}
-			const data = await response.json();
-			const mealsArray = [];
-			for (const mealId in data) {
-				mealsArray.push({
-					id: mealId,
-					...data[mealId],
-				});
-			}
-			console.log(mealsArray);
-			updateMeals(mealsArray);
-		};
-		fetchMeals();
-	}, []);
 
 	return (
 		<section className={classes.meals}>
