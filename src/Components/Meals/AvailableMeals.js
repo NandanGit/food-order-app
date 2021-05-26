@@ -1,36 +1,17 @@
+import { useEffect, useState } from 'react';
 import Card from '../UI/Card';
 import classes from './AvailableMeals.module.css';
 import MealItem from './MealItem/MealItem';
 
-const DUMMY_MEALS = [
-	{
-		id: 'm1',
-		name: 'Sushi',
-		description: 'Finest fish and veggies',
-		price: 1699,
-	},
-	{
-		id: 'm2',
-		name: 'Schnitzel',
-		description: 'A german specialty!',
-		price: 1199,
-	},
-	{
-		id: 'm3',
-		name: 'Barbecue Burger',
-		description: 'American, raw, meaty',
-		price: 899,
-	},
-	{
-		id: 'm4',
-		name: 'Green Bowl',
-		description: 'Healthy...and green...',
-		price: 1399,
-	},
-];
+const FIREBASE_ENDPOINT =
+	'https://food-order-app-data-default-rtdb.firebaseio.com';
+
+const FILE_NAME = 'meals.json';
 
 function AvailableMeals() {
-	const mealsList = DUMMY_MEALS.map((meal) => {
+	const [meals, updateMeals] = useState([]);
+
+	const mealsList = meals.map((meal) => {
 		return (
 			<MealItem
 				key={meal.id}
@@ -41,6 +22,28 @@ function AvailableMeals() {
 			/>
 		);
 	});
+
+	useEffect(() => {
+		const fetchMeals = async () => {
+			const response = await fetch(`${FIREBASE_ENDPOINT}/${FILE_NAME}`);
+			// console.log(response);
+			if (!response.ok) {
+				return console.log('Something went wrong');
+			}
+			const data = await response.json();
+			const mealsArray = [];
+			for (const mealId in data) {
+				mealsArray.push({
+					id: mealId,
+					...data[mealId],
+				});
+			}
+			console.log(mealsArray);
+			updateMeals(mealsArray);
+		};
+		fetchMeals();
+	}, []);
+
 	return (
 		<section className={classes.meals}>
 			<Card>
