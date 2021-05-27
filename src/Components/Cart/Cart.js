@@ -5,6 +5,11 @@ import classes from './Cart.module.css';
 import CartItem from './CartItem';
 import Checkout from './Checkout';
 
+const FIREBASE_ENDPOINT =
+	'https://food-order-app-data-default-rtdb.firebaseio.com';
+
+const FILE_NAME = 'orders.json';
+
 function Cart(props) {
 	const [isCheckout, setIsCheckout] = useState(false);
 	const cartCtx = useContext(CartContext);
@@ -48,6 +53,23 @@ function Cart(props) {
 		</div>
 	);
 
+	const placeOrderHandler = async (userData) => {
+		const orderDetails = {
+			userData,
+			cartItems: cartCtx.items,
+			orderTotal: cartCtx.totalAmount,
+		};
+		console.log(orderDetails);
+
+		// Send the orderDetails to the backend
+		const config = {
+			method: 'POST',
+			headers: {},
+			body: JSON.stringify(orderDetails),
+		};
+		fetch(`${FIREBASE_ENDPOINT}/${FILE_NAME}`, config);
+	};
+
 	return (
 		<Modal onClose={props.onClose}>
 			<ul className={classes['cart-items']}>{cartItems}</ul>
@@ -55,7 +77,12 @@ function Cart(props) {
 				<span>{'Total Amount'}</span>
 				<span>{totalAmount}</span>
 			</div>
-			{isCheckout && <Checkout onClose={props.onClose} />}
+			{isCheckout && (
+				<Checkout
+					onClose={props.onClose}
+					onPlaceOrder={placeOrderHandler}
+				/>
+			)}
 			{!isCheckout && modalActions}
 		</Modal>
 	);

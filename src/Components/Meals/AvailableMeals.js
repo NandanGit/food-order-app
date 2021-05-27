@@ -29,7 +29,7 @@ function AvailableMeals() {
 					...data[mealId],
 				});
 			}
-			console.log(mealsArray);
+			// console.log(mealsArray);
 			updateMeals(mealsArray);
 			setIsMealsLoading(false);
 		};

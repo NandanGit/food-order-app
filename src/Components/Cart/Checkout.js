@@ -29,7 +29,8 @@ function Checkout(props) {
 		if (!isEmpty(enteredName) && !isEmpty(enteredAddress)) {
 			setIsInputAddressValid(true);
 			setIsInputNameValid(true);
-			console.log({ enteredName, enteredAddress });
+			// console.log({ enteredName, enteredAddress });
+			props.onPlaceOrder({ name: enteredName, address: enteredAddress });
 		}
 	};
 
